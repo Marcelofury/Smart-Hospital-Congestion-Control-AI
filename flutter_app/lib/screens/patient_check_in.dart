@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/patient_model.dart';
 import '../services/flutterfire_triage_service.dart';
+import '../services/flutterfire_auth_service.dart';
 import 'hospital_queue.dart';
 
 class PatientHomeScreen extends StatelessWidget {
@@ -13,6 +14,14 @@ class PatientHomeScreen extends StatelessWidget {
         title: const Text('Patient Check-In'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FlutterFireAuthService().signOut();
+            },
+          ),
+        ],
       ),
       body: const PatientCheckInScreen(),
     );
