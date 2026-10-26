@@ -26,8 +26,6 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _signIn() async {
-
-  Future<void> _signIn() async {
     setState(() {
       _isLoading = true;
       _error = null;

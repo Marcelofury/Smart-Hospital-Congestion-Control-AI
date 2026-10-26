@@ -1,9 +1,10 @@
-services:
+﻿services:
   - type: web
     name: smart-hospital-backend
     env: node
-    buildCommand: npm install
-    startCommand: node backend/app.cjs
+    rootDir: backend
+    buildCommand: npm install --legacy-peer-deps
+    startCommand: node app.cjs
     envVars:
       - key: NODE_ENV
         value: production
