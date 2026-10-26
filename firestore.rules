@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isValidPatient(data) {
+      return data.patientName is string && data.patientName.size() <= 100
+        && data.symptoms is string && data.symptoms.size() <= 500
+        && data.triage_urgency in ['Emergency', 'Urgent', 'Non-Urgent']
+        && data.wait_strategy in ['Wait at Home', 'Divert to Telehealth', 'Report Directly to Triage Bed', 'Wait in Secondary Zone']
+        && data.status in ['registered', 'waiting_remote', 'diverted_telehealth', 'en_route', 'arrived', 'in_bed', 'completed']
+        && data.queueToken is string && data.queueToken.size() <= 20;
+    }
+
+    match /patients/{patientId} {
+      allow read: if true;
+      allow create: if isValidId(patientId) && isValidPatient(request.resource.data);
+      allow update: if isValidId(patientId) && isValidPatient(request.resource.data);
+      allow delete: if request.auth != null;
+    }
+
+    function isValidCapacity(data) {
+      return data.waitingRoomOccupancy is number
+        && data.waitingRoomMaxCapacity is number
+        && data.congestionLevel in ['Low', 'Moderate', 'High', 'Critical'];
+    }
+
+    match /hospital_capacity/{configId} {
+      allow read: if true;
+      allow create, update: if isValidId(configId) && isValidCapacity(request.resource.data);
+      allow delete: if false;
+    }
+  }
+}

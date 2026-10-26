@@ -1,0 +1,54 @@
+{
+  "entities": {
+    "PatientCheckIn": {
+      "title": "PatientCheckIn",
+      "description": "Patient check-in entry for triage and arrival dispersion",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "patientName": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "age": { "type": "number" },
+        "symptoms": { "type": "string", "maxLength": 500 },
+        "triage_urgency": { "type": "string", "enum": ["Emergency", "Urgent", "Non-Urgent"] },
+        "wait_strategy": { "type": "string", "enum": ["Wait at Home", "Divert to Telehealth", "Report Directly to Triage Bed", "Wait in Secondary Zone"] },
+        "recommended_arrival_time": { "type": "string", "maxLength": 150 },
+        "congestion_mitigation_action": { "type": "string", "maxLength": 300 },
+        "queue_token_message": { "type": "string", "maxLength": 300 },
+        "status": { "type": "string", "enum": ["registered", "waiting_remote", "diverted_telehealth", "en_route", "arrived", "in_bed", "completed"] },
+        "assignedBedOrZone": { "type": "string", "maxLength": 100 },
+        "queueToken": { "type": "string", "maxLength": 20 },
+        "estimatedWaitMinutes": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["patientName", "symptoms", "triage_urgency", "wait_strategy", "status", "queueToken"]
+    },
+    "HospitalCapacity": {
+      "title": "HospitalCapacity",
+      "description": "Real-time hospital congestion and waiting room occupancy state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "waitingRoomOccupancy": { "type": "number" },
+        "waitingRoomMaxCapacity": { "type": "number" },
+        "secondaryZoneOccupancy": { "type": "number" },
+        "triageBedsOccupied": { "type": "number" },
+        "totalTriageBeds": { "type": "number" },
+        "congestionLevel": { "type": "string", "enum": ["Low", "Moderate", "High", "Critical"] },
+        "lastUpdated": { "type": "string" }
+      },
+      "required": ["waitingRoomOccupancy", "waitingRoomMaxCapacity", "congestionLevel"]
+    }
+  },
+  "firestore": {
+    "/patients/{patientId}": {
+      "schema": { "$ref": "#/entities/PatientCheckIn" },
+      "description": "Patient check-ins and triage records"
+    },
+    "/hospital_capacity/{configId}": {
+      "schema": { "$ref": "#/entities/HospitalCapacity" },
+      "description": "Hospital waiting room capacity and live congestion metrics"
+    }
+  }
+}

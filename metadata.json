@@ -1,0 +1,6 @@
+{
+  "name": "Smart Hospital Congestion Control AI",
+  "description": "AI-driven triage, dynamic arrival dispersion, and real-time remote queue management to eliminate hospital waiting room bottlenecks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
