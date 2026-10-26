@@ -1,5 +1,14 @@
 export type TriageUrgency = 'Emergency' | 'Urgent' | 'Non-Urgent';
 
+export type UserRole =
+  | 'patient_guest'
+  | 'patient_registered'
+  | 'triage_nurse'
+  | 'clinician'
+  | 'charge_nurse'
+  | 'hospital_admin'
+  | 'system_admin';
+
 export type WaitStrategy =
   | 'Wait at Home'
   | 'Divert to Telehealth'
@@ -60,4 +69,16 @@ export interface HospitalCapacity {
   totalTriageBeds: number;
   congestionLevel: 'Low' | 'Moderate' | 'High' | 'Critical';
   lastUpdated: string;
+}
+
+export interface UserProfile {
+  uid: string;
+  email?: string | null;
+  displayName?: string | null;
+  photoURL?: string | null;
+  role: UserRole;
+  department?: string;
+  createdAt: string;
+  updatedAt: string;
+  active: boolean;
 }

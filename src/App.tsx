@@ -46,6 +46,9 @@ import { HospitalCommandDashboard } from './components/HospitalCommandDashboard'
 import { JsonViewerModal } from './components/JsonViewerModal';
 import { CongestionSimulator } from './components/CongestionSimulator';
 import { FlutterFireHubModal } from './components/FlutterFireHubModal';
+import { UserProfile } from './types';
+import { subscribeToUserProfile, upsertUserProfile } from './firebase/config';
+import { hasPermission } from './services/rbac';
 
 export default function App() {
   const [patients, setPatients] = useState<Patient[]>(SEED_PATIENTS);
@@ -58,6 +61,7 @@ export default function App() {
   const [isSimulatorOpen, setIsSimulatorOpen] = useState(false);
   const [isFlutterFireHubOpen, setIsFlutterFireHubOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isFirebaseConnected, setIsFirebaseConnected] = useState(true);
 
   // Initial connection test & auth listener
@@ -66,9 +70,32 @@ export default function App() {
       setIsFirebaseConnected(connected);
     });
 
-    const unsubAuth = onAuthStateChanged(auth, (currentUser) => {
+    const unsubAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+      if (currentUser) {
+        // Create/update user profile with RBAC
+        try {
+          await upsertUserProfile(
+            currentUser.uid,
+            currentUser.email,
+            currentUser.displayName,
+            currentUser.photoURL
+          );
+        } catch (err) {
+          console.warn('Failed to upsert user profile:', err);
+        }
+      } else {
+        setUserProfile(null);
+      }
     });
+
+    // Subscribe to user profile for RBAC
+    let unsubUserProfile: (() => void) | undefined;
+    if (user?.uid) {
+      unsubUserProfile = subscribeToUserProfile(user.uid, (profile) => {
+        setUserProfile(profile);
+      });
+    }
 
     // Real-time Firestore subscription for patients
     const unsubPatients = subscribeToPatients(
@@ -99,6 +126,7 @@ export default function App() {
 
     return () => {
       unsubAuth();
+      if (unsubUserProfile) unsubUserProfile();
       unsubPatients();
       unsubCapacity();
     };
@@ -138,6 +166,7 @@ export default function App() {
           setIsDualView(false);
         }}
         user={user}
+        userProfile={userProfile}
       />
 
       {/* Subheader Banner: Policy Mandate in Light Purple */}

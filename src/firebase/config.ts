@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/
 import {
   getFirestore,
   doc,
+  getDoc,
   getDocFromServer,
   collection,
   onSnapshot,
@@ -14,7 +15,8 @@ import {
   Unsubscribe
 } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
-import { Patient, HospitalCapacity } from '../types';
+import { Patient, HospitalCapacity, UserProfile, UserRole } from '../types';
+import { getDefaultRoleForEmail } from '../services/rbac';
 
 // Initialize Firebase SDK
 const app = initializeApp(firebaseConfig);
@@ -89,11 +91,90 @@ export async function testConnection(): Promise<boolean> {
 export type PatientRecord = Patient;
 export type HospitalCapacityState = HospitalCapacity;
 
-// Real-time listener for patients
-export function subscribeToPatients(
-  callback: (patients: Patient[]) => void,
+// Get or create user profile
+export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  const path = `users/${uid}`;
+  try {
+    const docRef = doc(db, 'users', uid);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return snap.data() as UserProfile;
+    }
+    return null;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.GET, path);
+    return null;
+  }
+}
+
+// Create or update user profile
+export async function upsertUserProfile(
+  uid: string,
+  email: string | null,
+  displayName: string | null,
+  photoURL: string | null,
+  role?: UserRole
+): Promise<UserProfile> {
+  const path = `users/${uid}`;
+  try {
+    const existing = await getUserProfile(uid);
+    const now = new Date().toISOString();
+    const userProfile: UserProfile = {
+      uid,
+      email,
+      displayName,
+      photoURL,
+      role: existing?.role || role || getDefaultRoleForEmail(email),
+      department: existing?.department,
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      active: existing?.active !== undefined ? existing.active : true,
+    };
+    await setDoc(doc(db, 'users', uid), userProfile);
+    return userProfile;
+  } catch (error) {
+    handleFirestoreError(error, OperationType.WRITE, path);
+    throw error;
+  }
+}
+
+// Update user role (admin only)
+export async function updateUserRole(uid: string, role: UserRole): Promise<void> {
+  const path = `users/${uid}`;
+  try {
+    await updateDoc(doc(db, 'users', uid), {
+      role,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    handleFirestoreError(error, OperationType.UPDATE, path);
+    throw error;
+  }
+}
+
+// Real-time listener for user profile
+export function subscribeToUserProfile(
+  uid: string,
+  callback: (profile: UserProfile | null) => void,
   onError?: (err: unknown) => void
 ): Unsubscribe {
+  const docRef = doc(db, 'users', uid);
+  return onSnapshot(
+    docRef,
+    (snap) => {
+      if (snap.exists()) {
+        callback(snap.data() as UserProfile);
+      } else {
+        callback(null);
+      }
+    },
+    (error) => {
+      handleFirestoreError(error, OperationType.GET, `users/${uid}`);
+      if (onError) onError(error);
+    }
+  );
+}
+
   const q = query(collection(db, 'patients'), orderBy('createdAt', 'desc'));
   return onSnapshot(
     q,

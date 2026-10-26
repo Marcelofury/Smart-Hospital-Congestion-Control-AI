@@ -11,9 +11,10 @@ import {
   ShieldCheck,
   Building2
 } from 'lucide-react';
-import { HospitalCapacity } from '../types';
+import { HospitalCapacity, UserProfile } from '../types';
 import { auth, googleProvider } from '../firebase/config';
 import { signInWithPopup, signOut } from 'firebase/auth';
+import { hasPermission } from '../services/rbac';
 
 interface NavbarProps {
   currentView: 'flutter_mobile' | 'hospital_command';
@@ -23,6 +24,7 @@ interface NavbarProps {
   onOpenFlutterFireHub: () => void;
   onOpenNewCheckIn: () => void;
   user: any;
+  userProfile?: UserProfile | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -33,6 +35,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenFlutterFireHub,
   onOpenNewCheckIn,
   user,
+  userProfile,
 }) => {
   const handleGoogleSignIn = async () => {
     try {
@@ -153,21 +156,29 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
 
           {/* Staff Auth */}
-          {user ? (
-            <div className="flex items-center space-x-1.5 pl-1 border-l border-purple-100">
-              <div
-                className="w-8 h-8 rounded-full bg-purple-100 text-purple-700 border border-purple-300 flex items-center justify-center text-xs font-semibold shadow-sm"
-                title={user.email}
-              >
-                {user.email?.charAt(0).toUpperCase() || 'S'}
+          {user && userProfile ? (
+            <div className="flex items-center space-x-2">
+              <div className="hidden md:flex flex-col items-end">
+                <div className="text-xs font-medium text-slate-700">{userProfile.displayName || user.email}</div>
+                <div className="text-[10px] text-purple-700 font-semibold capitalize">{userProfile.role.replace('_', ' ')}</div>
               </div>
               <button
-                onClick={handleSignOut}
-                className="p-1.5 text-slate-400 hover:text-slate-700 transition"
-                title="Sign Out"
+                className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm"
+                title={user.email}
+              >
+                {(userProfile.displayName || user.email)?.charAt(0).toUpperCase() || 'S'}
+              </button>
+              <button
+                onClick={handleGoogleSignOut}
+                className="p-1.5 text-slate-500 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition"
+                title="Sign out"
               >
                 <LogOut className="w-4 h-4" />
               </button>
+            </div>
+          ) : user ? (
+            <div className="flex items-center space-x-2">
+              <div className="text-xs text-slate-600">Loading...</div>
             </div>
           ) : (
             <button
