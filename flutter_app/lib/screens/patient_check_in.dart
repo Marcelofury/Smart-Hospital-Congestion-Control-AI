@@ -43,7 +43,7 @@ class _PatientCheckInScreenState extends State<PatientCheckInScreen> {
         phone: _phoneController.text.trim(),
         age: int.tryParse(_ageController.text) ?? 30,
         symptoms: _symptomsController.text.trim(),
-        apiBaseUrl: 'https://smart-hospital-backend.onrender.com', // Uses backend triage endpoint
+        apiBaseUrl: 'https://smart-hospital-congestion-control-ai.onrender.com', // Uses backend triage endpoint
       );
 
       if (!mounted) return;
