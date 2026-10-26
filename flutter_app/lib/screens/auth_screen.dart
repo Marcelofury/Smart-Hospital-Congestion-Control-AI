@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../services/flutterfire_auth_service.dart';
+import '../models/user_model.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -16,6 +16,7 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLoading = false;
   String? _error;
   bool _isRegister = false;
+  UserRole _selectedRole = UserRole.patientRegistered;
 
   Future<void> _submit() async {
     if (_isRegister) {
@@ -53,6 +54,7 @@ class _AuthScreenState extends State<AuthScreen> {
       await _authService.signUpWithEmail(
         _emailController.text.trim(),
         _passwordController.text.trim(),
+        role: _selectedRole,
       );
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/');
@@ -128,6 +130,17 @@ class _AuthScreenState extends State<AuthScreen> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(height: 20),
+              if (_isRegister) ...[
+                DropdownButtonFormField<UserRole>(
+                  value: _selectedRole,
+                  decoration: const InputDecoration(labelText: 'Role', border: OutlineInputBorder()),
+                  items: UserRole.values
+                      .map((r) => DropdownMenuItem(value: r, child: Text(r.name)))
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedRole = v ?? _selectedRole),
+                ),
+                const SizedBox(height: 12),
+              ],
               SizedBox(
                 width: double.infinity,
                 height: 50,
