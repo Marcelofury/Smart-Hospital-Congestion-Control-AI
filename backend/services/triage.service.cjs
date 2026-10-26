@@ -1,4 +1,4 @@
-﻿const { ai } = require('../config/gemini');
+﻿const { ai } = require('../config/gemini.cjs');
 const { Type } = require('@google/genai');
 
 function evaluateRuleBasedTriage(

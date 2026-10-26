@@ -1,5 +1,5 @@
-﻿const { evaluateRuleBasedTriage, evaluateWithAI } = require('../services/triage.service');
-const { ai } = require('../config/gemini');
+﻿const { evaluateRuleBasedTriage, evaluateWithAI } = require('../services/triage.service.cjs');
+const { ai } = require('../config/gemini.cjs');
 
 class TriageController {
   async evaluateTriage(req, res) {

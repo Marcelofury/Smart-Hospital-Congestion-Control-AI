@@ -1,7 +1,7 @@
 ﻿const express = require('express');
 const app = express();
 const path = require('path');
-const triageRoutes = require('./routes/triage.routes');
+const triageRoutes = require('./routes/triage.routes.cjs');
 
 app.use(express.json());
 app.use('/api', triageRoutes);
