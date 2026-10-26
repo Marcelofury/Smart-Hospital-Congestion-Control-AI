@@ -37,7 +37,12 @@ class _AuthScreenState extends State<AuthScreen> {
       );
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/');
+    } on FirebaseAuthException catch (e) {
+      setState(() => _error = e.message ?? 'Sign in failed');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
 
   Future<void> _register() async {
     setState(() {
@@ -57,7 +62,6 @@ class _AuthScreenState extends State<AuthScreen> {
       if (mounted) setState(() => _isLoading = false);
     }
   }
-
 
   @override
   void dispose() {
@@ -141,14 +145,14 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               ),
-               const SizedBox(height: 12),
-               TextButton(
-                 onPressed: () => setState(() => _isRegister = !_isRegister),
-                 child: Text(_isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register",
-                     style: const TextStyle(color: Color(0xFFC084FC))),
-               ),
-               const SizedBox(height: 8),
-               const Text('Staff emails end with @hospital.org',
+              const SizedBox(height: 12),
+              TextButton(
+                onPressed: () => setState(() => _isRegister = !_isRegister),
+                child: Text(_isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register",
+                    style: const TextStyle(color: Color(0xFFC084FC))),
+              ),
+              const SizedBox(height: 8),
+              const Text('Staff emails end with @hospital.org',
                   style: TextStyle(fontSize: 12, color: Colors.white70)),
             ],
           ),
