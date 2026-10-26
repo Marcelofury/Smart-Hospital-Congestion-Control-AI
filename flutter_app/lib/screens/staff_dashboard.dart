@@ -48,7 +48,7 @@ class _StaffDashboardScreenState extends State<StaffDashboardScreen> {
           backgroundColor: const Color(0xFF0F172A),
           appBar: AppBar(
             title: const Text('Staff Command Center'),
-            backgroundColor: const Color(0xFF115E59),
+            backgroundColor: const Color(0xFF7C3AED),
             centerTitle: true,
             actions: [
               Padding(

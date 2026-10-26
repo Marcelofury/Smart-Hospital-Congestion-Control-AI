@@ -1,4 +1,4 @@
-﻿enum UserRole {
+enum UserRole {
   patientGuest,
   patientRegistered,
   triageNurse,

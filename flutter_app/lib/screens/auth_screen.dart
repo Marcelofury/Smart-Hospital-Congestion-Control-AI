@@ -48,7 +48,7 @@ class _AuthScreenState extends State<AuthScreen> {
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
         title: const Text('Staff Sign In'),
-        backgroundColor: const Color(0xFF115E59),
+        backgroundColor: const Color(0xFF7C3AED),
         centerTitle: true,
       ),
       body: Center(
@@ -57,7 +57,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.local_hospital, size: 80, color: Color(0xFF0D9488)),
+              const Icon(Icons.local_hospital, size: 80, color: Color(0xFF8B5CF6)),
               const SizedBox(height: 20),
               const Text('Smart Hospital',
                   style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -110,7 +110,7 @@ class _AuthScreenState extends State<AuthScreen> {
                       : const Icon(Icons.login),
                   label: Text(_isLoading ? 'Signing in...' : 'Sign In'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0D9488),
+                    backgroundColor: const Color(0xFF8B5CF6),
                     foregroundColor: Colors.white,
                   ),
                 ),

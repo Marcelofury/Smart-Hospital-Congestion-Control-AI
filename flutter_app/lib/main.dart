@@ -30,7 +30,7 @@ class SmartHospitalCongestionApp extends StatelessWidget {
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF0D9488),
+          seedColor: const Color(0xFF8B5CF6),
           brightness: Brightness.dark,
           surface: const Color(0xFF0F172A),
         ),

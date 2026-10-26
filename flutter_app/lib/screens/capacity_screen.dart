@@ -108,7 +108,7 @@ class _CapacityScreenState extends State<CapacityScreen> {
                   onPressed: _update,
                   icon: const Icon(Icons.save),
                   label: const Text('Save Changes'),
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF0D9488)),
+                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
                 ),
               ),
             ],

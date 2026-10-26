@@ -124,7 +124,7 @@ class _PatientCheckInScreenState extends State<PatientCheckInScreen> {
             icon: _isLoading ? const CircularProgressIndicator() : const Icon(Icons.local_hospital),
             label: Text(_isLoading ? 'AI Analyzing Bottlenecks...' : 'Submit & Receive Queue Token'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF0D9488),
+              backgroundColor: const Color(0xFF8B5CF6),
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(vertical: 16),
             ),
@@ -183,9 +183,9 @@ class DigitalQueuePassScreen extends StatelessWidget {
             ),
             const SizedBox(height: 16),
             Card(
-              color: const Color(0xFF0F291E),
+              color: const Color(0xFF1E1B2E),
               child: ListTile(
-                leading: const Icon(Icons.sms, color: Colors.greenAccent),
+                leading: const Icon(Icons.sms, color: Color(0xFFC084FC)),
                 title: const Text('SMS Update Dispatched',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 subtitle: Text(patient.queueTokenMessage, style: const TextStyle(fontSize: 11)),
