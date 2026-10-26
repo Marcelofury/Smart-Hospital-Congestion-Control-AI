@@ -14,7 +14,14 @@ class FlutterFireAuthService {
     return await _auth.signInWithEmailAndPassword(email: email, password: password);
   }
 
-  Future<UserProfile?> getUserProfile() async {
+  Future<UserCredential> signUpWithEmail(String email, String password) async {
+    final cred = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    if (cred.user != null) {
+      await createUserProfile(cred.user!);
+    }
+    return cred;
+  }
+
     final user = _auth.currentUser;
     if (user == null) return null;
 

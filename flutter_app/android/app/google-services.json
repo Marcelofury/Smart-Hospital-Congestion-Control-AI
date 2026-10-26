@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "510538952274",
+    "project_id": "smart-hospital-congestion-ctrl",
+    "storage_bucket": "smart-hospital-congestion-ctrl.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:510538952274:android:ac26d32249276d21a1b98b",
+        "android_client_info": {
+          "package_name": "com.example.smart_hospital_congestion_control"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "510538952274-78gk77n54r1e0p6npkr66q5e81plh2rd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkX9ChEAitRawOJ82P_l6ZAFf0GXvL9-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "510538952274-78gk77n54r1e0p6npkr66q5e81plh2rd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

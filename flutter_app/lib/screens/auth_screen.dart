@@ -15,6 +15,17 @@ class _AuthScreenState extends State<AuthScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _error;
+  bool _isRegister = false;
+
+  Future<void> _submit() async {
+    if (_isRegister) {
+      await _register();
+    } else {
+      await _signIn();
+    }
+  }
+
+  Future<void> _signIn() async {
 
   Future<void> _signIn() async {
     setState(() {
@@ -28,12 +39,27 @@ class _AuthScreenState extends State<AuthScreen> {
       );
       if (!mounted) return;
       Navigator.pushReplacementNamed(context, '/');
+    }
+
+  Future<void> _register() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      await _authService.signUpWithEmail(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, '/');
     } on FirebaseAuthException catch (e) {
-      setState(() => _error = e.message ?? 'Sign in failed');
+      setState(() => _error = e.message ?? 'Registration failed');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
+
 
   @override
   void dispose() {
@@ -47,7 +73,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFF0F172A),
       appBar: AppBar(
-        title: const Text('Staff Sign In'),
+        title: Text(_isRegister ? 'Staff Register' : 'Staff Sign In'),
         backgroundColor: const Color(0xFF7C3AED),
         centerTitle: true,
       ),
@@ -104,19 +130,27 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton.icon(
-                  onPressed: _isLoading ? null : _signIn,
+                  onPressed: _isLoading ? null : _submit,
                   icon: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
-                      : const Icon(Icons.login),
-                  label: Text(_isLoading ? 'Signing in...' : 'Sign In'),
+                      : Icon(_isRegister ? Icons.person_add : Icons.login),
+                  label: Text(_isLoading
+                      ? (_isRegister ? 'Registering...' : 'Signing in...')
+                      : (_isRegister ? 'Register' : 'Sign In')),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF8B5CF6),
                     foregroundColor: Colors.white,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
-              const Text('Staff emails end with @hospital.org',
+               const SizedBox(height: 12),
+               TextButton(
+                 onPressed: () => setState(() => _isRegister = !_isRegister),
+                 child: Text(_isRegister ? 'Already have an account? Sign In' : "Don't have an account? Register",
+                     style: const TextStyle(color: Color(0xFFC084FC))),
+               ),
+               const SizedBox(height: 8),
+               const Text('Staff emails end with @hospital.org',
                   style: TextStyle(fontSize: 12, color: Colors.white70)),
             ],
           ),
