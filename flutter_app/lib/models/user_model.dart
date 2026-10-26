@@ -37,7 +37,7 @@ class UserProfile {
       email: data['email'],
       displayName: data['displayName'],
       photoURL: data['photoURL'],
-      role: _roleFromString(data['role'] ?? 'patient_guest'),
+      role: roleFromString(data['role'] ?? 'patient_guest'),
       department: data['department'],
       createdAt: data['createdAt'] != null
           ? DateTime.tryParse(data['createdAt']) ?? DateTime.now()
@@ -55,7 +55,7 @@ class UserProfile {
       'email': email,
       'displayName': displayName,
       'photoURL': photoURL,
-      'role': _roleToString(role),
+      'role': roleToString(role),
       'department': department,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
@@ -63,7 +63,7 @@ class UserProfile {
     };
   }
 
-  static UserRole _roleFromString(String role) {
+  static UserRole roleFromString(String role) {
     switch (role) {
       case 'patient_registered':
         return UserRole.patientRegistered;
@@ -82,7 +82,7 @@ class UserProfile {
     }
   }
 
-  static String _roleToString(UserRole role) {
+  static String roleToString(UserRole role) {
     switch (role) {
       case UserRole.patientRegistered:
         return 'patient_registered';
