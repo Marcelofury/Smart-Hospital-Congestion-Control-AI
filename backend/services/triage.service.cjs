@@ -106,23 +106,49 @@ async function evaluateWithAI(patientData) {
   const totalBeds = hospitalCapacity?.totalTriageBeds ?? 10;
   const congestionLevel = hospitalCapacity?.congestionLevel ?? 'High';
 
-  const prompt = 'You are the Smart Hospital Congestion Control AI. Analyze patient and minimize physical waiting rooms. Return JSON with triage_urgency, wait_strategy, recommended_arrival_time, congestion_mitigation_action, queue_token_message.';
+  const prompt = [
+    'You are the Smart Hospital Congestion Control AI. Analyze the patient below and choose a triage decision that keeps care safe while minimizing physical waiting-room congestion.',
+    `Patient: ${patientName || 'Unknown'} | Age: ${age ?? 'unknown'} | Symptoms: ${symptoms}`,
+    `Vitals: ${JSON.stringify(vitals ?? {})}`,
+    `Waiting room: ${currentOccupancy}/${maxCapacity} occupied. Triage beds: ${bedsOccupied}/${totalBeds} occupied. Congestion: ${congestionLevel}.`,
+    'Return ONLY valid JSON with these string fields: triage_urgency (Emergency, Urgent, or Non-Urgent), wait_strategy (Report Directly to Triage Bed, Divert to Telehealth, Wait in Secondary Zone, Wait in Waiting Room, or Wait at Home), recommended_arrival_time, congestion_mitigation_action, queue_token_message, clinical_summary, assigned_bed_or_zone, estimated_wait_minutes.',
+    'For Emergency use wait_strategy "Report Directly to Triage Bed" and estimated_wait_minutes "0". For Non-Urgent prefer "Wait at Home" or "Divert to Telehealth" to keep patients out of the physical waiting room.',
+  ].join('\n');
 
-  const timeoutPromise = new Promise((_, reject) =>
-    setTimeout(() => reject(new Error('AI response timed out')), 4000)
-  );
-
-  const generatePromise = ai.models.generateContent({
-    model: 'gemini-3.8-flash',
-    contents: prompt,
-    config: {
-      responseMimeType: 'application/json',
-    },
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error('AI response timed out')), 20000);
   });
 
-  const response = await Promise.race([generatePromise, timeoutPromise]);
-  const text = response.text ? response.text.trim() : '';
-  return JSON.parse(text);
+  try {
+    const generatePromise = ai.models.generateContent({
+      model: 'gemini-3.8-flash',
+      contents: prompt,
+      config: {
+        responseMimeType: 'application/json',
+      },
+    });
+
+    const response = await Promise.race([generatePromise, timeoutPromise]);
+    const text = response.text ? response.text.trim() : '';
+    const parsed = JSON.parse(text);
+
+    for (const field of [
+      'triage_urgency',
+      'wait_strategy',
+      'recommended_arrival_time',
+      'congestion_mitigation_action',
+      'queue_token_message',
+    ]) {
+      if (typeof parsed[field] !== 'string' || !parsed[field].trim()) {
+        throw new Error(`AI response missing ${field}`);
+      }
+    }
+
+    return parsed;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 module.exports = { evaluateRuleBasedTriage, evaluateWithAI };
