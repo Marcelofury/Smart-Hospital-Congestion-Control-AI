@@ -55,6 +55,17 @@ class _HospitalQueueScreenState extends State<HospitalQueueScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/staff-dashboard');
+            }
+          },
+        ),
         title: const Text('Live Firestore Queue Stream'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,
@@ -76,7 +87,7 @@ class _HospitalQueueScreenState extends State<HospitalQueueScreen> {
                   child: Text(p.queueToken.split('-').last),
                 ),
                 title: Text(p.patientName),
-                subtitle: Text('${p.triageUrgency} • ${p.waitStrategy} • ${p.status}'),
+                subtitle: Text('${p.triageUrgency} ??? ${p.waitStrategy} ??? ${p.status}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.edit, color: Colors.tealAccent),
                   onPressed: () => _showStatusDialog(p),

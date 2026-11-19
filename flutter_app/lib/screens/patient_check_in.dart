@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../models/patient_model.dart';
 import '../services/flutterfire_triage_service.dart';
 import '../services/flutterfire_auth_service.dart';
-import 'hospital_queue.dart';
+import '../config/api_config.dart';
 
 class PatientHomeScreen extends StatelessWidget {
   const PatientHomeScreen({super.key});
@@ -11,6 +11,17 @@ class PatientHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/patient-home');
+            }
+          },
+        ),
         title: const Text('Patient Check-In'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,
@@ -52,14 +63,25 @@ class _PatientCheckInScreenState extends State<PatientCheckInScreen> {
         phone: _phoneController.text.trim(),
         age: int.tryParse(_ageController.text) ?? 30,
         symptoms: _symptomsController.text.trim(),
-        apiBaseUrl: 'https://smart-hospital-congestion-control-ai.onrender.com', // Uses backend triage endpoint
+        apiBaseUrl: ApiConfig.baseUrl,
       );
 
       if (!mounted) return;
       Navigator.pushNamed(context, '/queue-pass', arguments: patient);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+      if (!mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Check-In Failed'),
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('OK'),
+            ),
+          ],
+        ),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -153,11 +175,34 @@ class DigitalQueuePassScreen extends StatelessWidget {
     final isEmergency = patient.triageUrgency == 'Emergency';
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/patient-home');
+            }
+          },
+        ),
         title: const Text('Digital Boarding Pass'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Log out',
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              await FlutterFireAuthService().signOut();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, '/auth', (route) => false);
+              }
+            },
+          ),
+        ],
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
@@ -198,6 +243,15 @@ class DigitalQueuePassScreen extends StatelessWidget {
                 title: const Text('SMS Update Dispatched',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 subtitle: Text(patient.queueTokenMessage, style: const TextStyle(fontSize: 11)),
+              ),
+            ),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/patient-home'),
+                icon: const Icon(Icons.home),
+                label: const Text('Back to Home'),
               ),
             ),
           ],

@@ -40,6 +40,17 @@ class _CapacityScreenState extends State<CapacityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/staff-dashboard');
+            }
+          },
+        ),
         title: const Text('Hospital Capacity'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,

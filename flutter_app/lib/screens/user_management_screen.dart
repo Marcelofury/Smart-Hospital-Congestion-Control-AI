@@ -11,6 +11,17 @@ class UserManagementScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/staff-dashboard');
+            }
+          },
+        ),
         title: const Text('User Management'),
         backgroundColor: const Color(0xFF0F172A),
         centerTitle: true,
@@ -35,7 +46,7 @@ class UserManagementScreen extends StatelessWidget {
                 child: ListTile(
                   leading: CircleAvatar(child: Text(email.isNotEmpty ? email[0].toUpperCase() : '?')),
                   title: Text(email, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text('${role.toString().replaceFirst('UserRole.', '')} • ${active ? 'Active' : 'Inactive'}'),
+                  subtitle: Text('${role.toString().replaceFirst('UserRole.', '')} ??? ${active ? 'Active' : 'Inactive'}'),
                   trailing: SizedBox(
                     width: 150,
                     child: DropdownButtonFormField<UserRole>(
