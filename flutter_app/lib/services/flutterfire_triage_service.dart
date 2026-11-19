@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
@@ -24,6 +25,37 @@ class FlutterFireTriageService {
     return _firestore.collection('hospital_capacity').doc('main').snapshots();
   }
 
+  Future<http.Response> _postTriage(Uri uri, Map<String, dynamic> payload) async {
+    const maxAttempts = 3;
+    Object? lastError;
+
+    for (var attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        return await http
+            .post(
+              uri,
+              headers: {'Content-Type': 'application/json'},
+              body: jsonEncode(payload),
+            )
+            .timeout(const Duration(seconds: 60));
+      } on TimeoutException catch (error) {
+        lastError = error;
+      } on http.ClientException catch (error) {
+        lastError = error;
+      }
+
+      if (attempt < maxAttempts) {
+        await Future<void>.delayed(Duration(seconds: attempt * 2));
+      }
+    }
+
+    throw Exception(
+      'Could not reach the triage server. Check your internet connection and try again. '
+      'If you are using the Render deployment, the free instance may still be waking up. '
+      'Details: $lastError',
+    );
+  }
+
   // Submit patient check-in to Congestion Control AI API and store in Firestore
   Future<PatientModel> submitCheckInAndTriage({
     required String patientName,
@@ -33,15 +65,14 @@ class FlutterFireTriageService {
     required String apiBaseUrl,
   }) async {
     // 1. Call Gemini AI Smart Congestion Control endpoint
-    final response = await http.post(
+    final response = await _postTriage(
       Uri.parse('$apiBaseUrl/api/triage'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
+      {
         'patientName': patientName,
         'age': age,
         'phone': phone,
         'symptoms': symptoms,
-      }),
+      },
     );
 
     if (response.statusCode != 200) {
@@ -96,7 +127,14 @@ class FlutterFireTriageService {
     );
 
     // Save directly to Firestore via FlutterFire
-    await docRef.set(patient.toFirestore());
+    try {
+      await docRef.set(patient.toFirestore());
+    } on FirebaseException catch (error) {
+      throw Exception(
+        'Triage succeeded, but your queue token could not be saved to the hospital queue: '
+        '${error.message ?? error.code}',
+      );
+    }
 
     return patient;
   }

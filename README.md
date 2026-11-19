@@ -168,7 +168,15 @@ The client is pre-wired to the Firebase project in `lib/firebase_options.dart`. 
 flutterfire configure
 ```
 
-The triage API base URL is set in `lib/screens/patient_check_in.dart`. Update `apiBaseUrl` to point at your local API or deployed backend.
+The API URL defaults to the Render deployment and can be overridden without editing code:
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://your-api.example.com
+```
+
+For the Android emulator, `http://10.0.2.2:3000` reaches a backend on your computer. For a physical phone, use your computer's LAN IP and make sure both devices are on the same network.
+
+If the app shows `Failed host lookup`, check the phone's internet connection and confirm the release manifest includes the `INTERNET` permission. After changing the manifest, uninstall the old app and rebuild; hot reload does not apply manifest changes. The backend also sends CORS headers so the Flutter web build can call it from another origin.
 
 ### 5. Deploy Firebase rules and hosting
 
