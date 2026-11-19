@@ -27,9 +27,13 @@ class PatientHomeScreen extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
+            tooltip: 'Log out',
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FlutterFireAuthService().signOut();
+              if (context.mounted) {
+                Navigator.pushNamedAndRemoveUntil(context, '/auth', (route) => false);
+              }
             },
           ),
         ],
